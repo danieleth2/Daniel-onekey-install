@@ -48,6 +48,32 @@ read_ironfish(){
     docker exec -it node bash -c "ironfish status"
 }
 
+update_ironfish(){
+    echo "开始升级，请耐心等待"
+    docker pull ghcr.io/iron-fish/ironfish:latest
+    docker stop node
+    docker rm node
+    rm -rf /root/.node
+    echo "重新配置"
+    read -p " 请输入节点名字（跟官方注册的一样）:" name
+    echo "你输入的节点名字是 $name"
+    read -r -p "请确认输入的节点名字正确，正确请输入Y，否则将退出 [Y/n] " input
+    case $input in
+        [yY][eE][sS]|[yY])
+            echo "继续安装"
+            ;;
+
+        *)
+            echo "退出安装..."
+            exit 1
+            ;;
+    esac
+    docker run -itd --name node --net host --volume /root/.node:/root/.ironfish ghcr.io/iron-fish/ironfish:latest start
+    sleep 10
+    docker exec -it node bash -c "ironfish config:set blockGraffiti ${name}"
+    docker exec -it node bash -c "ironfish config:set enableTelemetry true"
+    echo "启动成功！升级完成"
+}
 
 echo && echo -e " ${Red_font_prefix}IronFish 一键安装脚本${Font_color_suffix} by \033[1;35mDaniel\033[0m
 此脚本完全免费开源，由推特用户 ${Green_font_prefix}Daniel_eth2开发${Font_color_suffix}，
@@ -56,8 +82,9 @@ echo && echo -e " ${Red_font_prefix}IronFish 一键安装脚本${Font_color_suff
  ${Green_font_prefix} 1.安装 docker ${Font_color_suffix}
  ${Green_font_prefix} 2.安装 Ironfish ${Font_color_suffix}
  ${Green_font_prefix} 3.检查 Ironfish状态 ${Font_color_suffix}
+ ${Green_font_prefix} 4.升级 Ironfish版本 ${Font_color_suffix}
  ———————————————————————" && echo
-read -e -p " 请输入数字 [1-3]:" num
+read -e -p " 请输入数字 [1-4]:" num
 case "$num" in
 1)
     install_docker
@@ -67,6 +94,9 @@ case "$num" in
     ;;
 3)
     read_ironfish
+    ;;
+4)
+    update_ironfish
     ;;
 *)
     echo
