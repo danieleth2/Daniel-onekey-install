@@ -31,7 +31,10 @@ install_ironfish(){
     npm install -g npm@9.4.1
     npm install -g ironfish
     ironfish stop
+    sleep 10
     ironfish chain:download
+    ironfish stop
+    sleep 10
     nohup ironfish start > ironfish.test.log 2>&1 &
     ironfish config:set blockGraffiti ${name}
     ironfish config:set enableTelemetry true
