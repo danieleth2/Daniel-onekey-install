@@ -30,10 +30,9 @@ install_ironfish(){
     sudo apt-get install -y nodejs
     npm install -g npm@9.4.1
     npm install -g ironfish
-    ironfish stop
-    sleep 10
+    echo "安装成功！"
     nohup ironfish start > ironfish.test.log 2>&1 &
-    ironfish config:set blockGraffiti ${name}
+    ironfish config:set blockGraffiti $name
     ironfish config:set enableTelemetry true
     echo "启动成功！"
 }
